@@ -48,13 +48,15 @@ __global__ void _GPUBFS(int level,
       for(; j < end; ++j){
         int neighborRow = cadj[j];
         int neighborColMatch = rmatch[neighborRow];
-        
+        // neighbor is matched
         if(neighborColMatch > -1){
+        // neighbor is unvisited
           if(bfs[neighborColMatch] > -1){
             inserted_any = true;
             bfs[neighborColMatch] = level - 1;
             preced[neighborRow] = myColumnVertex;
           }
+        // neighbor is unmatched
         } else if(neighborColMatch == -1){
           rmatch[neighborRow] = -2;
           preced[neighborRow] = myColumnVertex; 
@@ -134,7 +136,7 @@ __global__ void _swap_edges_GPUBFS(
       do{
         int matchedColumn = preced[rowInd];
         int mRow = cmatch[matchedColumn];
-        if(preced[mRow] == matchedColumn){
+        if(mRow > -1 && preced[mRow] == matchedColumn){
 
           break;
         }
@@ -190,9 +192,11 @@ __global__ void _fixMatching_initBFSArray(
   for (; i < process_cnt; ++i){
     int myRowVertex = i * total_thread_num + tx;
     int c = rmatch[myRowVertex];
-    int r = cmatch[c];
-    if (r != myRowVertex) 
-      rmatch[myRowVertex] = -1;
+    if (c > -1){
+      int r = cmatch[c];
+      if (r != myRowVertex) 
+        rmatch[myRowVertex] = -1;
+    }
   }
   
   process_cnt = nc / total_thread_num;
