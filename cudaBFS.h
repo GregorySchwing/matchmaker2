@@ -55,17 +55,6 @@ void fixMatching(
                    int threadDim
                    );
 
-void countMatching(
-                    int *_cmatch,
-                    int *_rmatch,
-                    int nr, int nc,
-                    int *_bfs,
-                    bool *_non_matched_found,
-                    int *matchcount,
-                    int blockD,
-                    int threadDim
-                    );
-
 void init_BFSArray(
                      int nc,
                      int *_cmatch,
