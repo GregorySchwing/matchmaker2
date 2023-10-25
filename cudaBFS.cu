@@ -420,6 +420,36 @@ __global__ void _fixMatching(
   }
 }
 
+
+__global__ void _countMatching(
+                            int *cmatch,
+                            int *rmatch,
+                            int nr, int nc,
+                            int *bfs,
+                            bool *_non_matched_found, 
+                            int *matchcount,
+                            int total_thread_num, 
+                            int blockSize
+                            ){
+
+	int tx = blockIdx.x*blockSize + threadIdx.x;
+  
+  int process_cnt = nr / total_thread_num;
+  
+  if (tx < nr % total_thread_num){
+    process_cnt += 1;
+  }
+  int i = 0;
+  for (; i < process_cnt; ++i){
+    int myRowVertex = i * total_thread_num + tx;
+    int c = rmatch[myRowVertex];
+    int r = cmatch[c];
+    if (r == myRowVertex) 
+      atomicAdd(matchcount,1);
+  }
+}
+
+
 void fixMatching(
                     int *_cmatch,
                     int *_rmatch,
@@ -442,6 +472,34 @@ void fixMatching(
                                         threadDim);
   
 }
+
+
+void countMatching(
+                    int *_cmatch,
+                    int *_rmatch,
+                    int nr, int nc,
+                    int *_bfs,
+                    bool *_non_matched_found,
+                    int *matchcount,
+                    int blockD,
+                    int threadDim
+                    ){
+  int total_thread_num = threadDim * blockD;
+  dim3 dimBlock(threadDim,1,1);
+  dim3 dimGrid(blockD, 1,1);
+  
+  
+  _countMatching <<<dimGrid,dimBlock>>>(_cmatch,
+                                        _rmatch,
+                                        nr, nc,
+                                        _bfs,_non_matched_found, 
+                                        matchcount,
+                                        total_thread_num, 
+                                        threadDim);
+  
+}
+
+
 
 __global__ void _GPUBFS_WR(
                               int level, int *cxadj,
@@ -492,6 +550,7 @@ __global__ void _GPUBFS_WR(
         if(neighborColMatch > -1){
           if(bfs[neighborColMatch] == 0){
             bfs[neighborColMatch] = level - 1;
+            //printf("Inserting %d\n",neighborRow);
             inserted_any = true;
             root[neighborColMatch] = myRoot;
             //todo may wanna check here.
@@ -501,7 +560,7 @@ __global__ void _GPUBFS_WR(
         } else if(neighborColMatch == -1){
           bfs[myRoot] = 1 +neighborRow;
           if(bfs[myRoot] == 1+neighborRow){
-            
+            printf("NMF %d\n",neighborRow);
             //may want to check here.
             preced[neighborRow] = myColumnVertex; 
             rmatch[neighborRow] = -2;

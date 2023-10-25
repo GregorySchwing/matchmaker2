@@ -30,7 +30,7 @@
 
 
 
-//#define profiling
+#define profiling
 
 typedef int IT;
 typedef int WT;
@@ -130,7 +130,8 @@ void APFB_GPUBFS_WR( int *cxadj,
                        bool *inserted,
                        bool *non_matched_found, bool *inserted2
                        ,int blockD, int threadDim,
-                       int *root
+                       int *root,
+                       int * _matchcount
                        );
 
 void APsB_GPUBFS_WR(int *cxadj,
@@ -239,7 +240,8 @@ void maximal_matching(IT nr,
                       bool *_is_inserted2,
                       bool *_non_matched_found,
                       int blockDim, 
-                      int threadDim,IT *_root_array);
+                      int threadDim,IT *_root_array,
+                      int * _matchcount);
 
 int main(int argc, char *argv[]){
   MMArguments mma(argc, argv);
@@ -263,6 +265,7 @@ int main(int argc, char *argv[]){
   bool *_is_inserted2;
   
   IT *_root_array = NULL;
+  int * _matchcount = NULL;
   
   int match_types[11];
   /*
@@ -343,9 +346,10 @@ int main(int argc, char *argv[]){
        cudaMalloc((void**)&_non_matched_found, sizeof(bool) ) == cudaSuccess&& 
        cudaMalloc((void**)&_bfs, nc_size ) == cudaSuccess && 
        cudaMalloc((void**)&_preced, nr_size ) == cudaSuccess && 
-       cudaMalloc((void**)&_root_array, nc_size ) == cudaSuccess    
+       cudaMalloc((void**)&_root_array, nc_size ) == cudaSuccess     &&
+       cudaMalloc((void**)&_matchcount, 1*sizeof(int) ) == cudaSuccess)
          //TODO -- sizeof this.
-       )){
+       ){
       printf("CANNOT ALLOCATE GPU MEMORY\n");
       exit(1);
     }
@@ -468,8 +472,7 @@ int main(int argc, char *argv[]){
                        _bfs, _preced,
                        _is_inserted2, 
                        _non_matched_found, bd, td,
-                       _root_array
-                  );
+                       _root_array, _matchcount);
       double mmend = rtclock();
       
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
@@ -778,7 +781,8 @@ void maximal_matching(IT nr,
                       bool *_is_inserted2,
                       bool *_non_matched_found,
                       int bd, 
-                      int td,IT *_root_array){
+                      int td,IT *_root_array,
+                      int *_matchcount){
   
 
   switch (matching_type) {
@@ -850,9 +854,11 @@ void maximal_matching(IT nr,
                         _bfs, 
                         _preced, 
                         _is_inserted,
-                        _non_matched_found, _is_inserted2
+                        _non_matched_found, 
+                        _is_inserted2
                         ,bd, td,
-                        _root_array
+                        _root_array,
+                        _matchcount
                         );
       break;
     case 10:
@@ -1369,7 +1375,8 @@ void APFB_GPUBFS_WR(int *cxadj,
                        bool *_is_inserted,
                        bool *_non_matched_found, bool *_is_inserted2
                        ,int blockD, int threadDim,
-                       int *root
+                       int *root,
+                       int *_matchcount
                        ){
   
   dim3 dimBlock(threadDim,1,1);
@@ -1472,9 +1479,27 @@ void APFB_GPUBFS_WR(int *cxadj,
                   );
 
 
+
+
 #ifdef profiling
     cout << "\tbfs level:" << level << endl;
     totalbfscall -= level;
+    cudaMemset(_matchcount, 0, sizeof(int));
+    int matchcount = 0;
+    countMatching (cmatch,
+                  rmatch,
+                  nr, nc,
+                  bfs,
+                  _non_matched_found, 
+                  _matchcount,
+                  //total_thread_num, 
+                  blockD,
+                  threadDim
+                  );
+  cudaMemcpy(&matchcount,_matchcount, sizeof(bool), cudaMemcpyDeviceToHost);
+  cout << "matchcount:" << matchcount << endl;
+
+
 #endif
     level = STARTLEVEL;
   }
