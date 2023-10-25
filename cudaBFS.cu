@@ -414,9 +414,11 @@ __global__ void _fixMatching(
   for (; i < process_cnt; ++i){
     int myRowVertex = i * total_thread_num + tx;
     int c = rmatch[myRowVertex];
-    int r = cmatch[c];
-    if (r != myRowVertex) 
-      rmatch[myRowVertex] = -1;
+    if (c > -1){
+      int r = cmatch[c];
+      if (r != myRowVertex) 
+        rmatch[myRowVertex] = -1;
+    }
   }
   
   if (tx == 0){
@@ -564,7 +566,6 @@ __global__ void _GPUBFS_WR(
         } else if(neighborColMatch == -1){
           bfs[myRoot] = 1 +neighborRow;
           if(bfs[myRoot] == 1+neighborRow){
-            printf("NMF %d\n",neighborRow);
             //may want to check here.
             preced[neighborRow] = myColumnVertex; 
             rmatch[neighborRow] = -2;
@@ -660,7 +661,7 @@ __global__ void _swap_edges_GPUBFS_WR(
       do{
         int matchedColumn = preced[rowInd];
         int mRow = cmatch[matchedColumn];
-        if(preced[mRow] == matchedColumn){
+        if(mRow > -1 && preced[mRow] == matchedColumn){
           
           break;
         }

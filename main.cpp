@@ -1484,6 +1484,7 @@ void APFB_GPUBFS_WR(int *cxadj,
 #ifdef profiling
     cout << "\tbfs level:" << level << endl;
     totalbfscall -= level;
+    /*
     cudaMemset(_matchcount, 0, sizeof(int));
     int matchcount = 0;
     countMatching (cmatch,
@@ -1498,6 +1499,7 @@ void APFB_GPUBFS_WR(int *cxadj,
                   );
   cudaMemcpy(&matchcount,_matchcount, sizeof(bool), cudaMemcpyDeviceToHost);
   cout << "matchcount:" << matchcount << endl;
+  */
 
 
 #endif
