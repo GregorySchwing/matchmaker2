@@ -27,10 +27,12 @@
 #include <cuda_runtime_api.h>
 #include <cuda.h>
 #include "cudaBFS.h"
+#include "MatchingTypeEnums.h"
+#include <unistd.h>
 
 
 
-#define profiling
+//#define profiling
 
 typedef int IT;
 typedef int WT;
@@ -483,6 +485,32 @@ int main(int argc, char *argv[]){
       cout << "Maximal Match Time:" << mmend - mbegin << endl;
       cout << "Maximal Match Count:" << mmc << endl;
       
+      char inputFilename[500];
+      char outputFilename[500];
+      strcpy(outputFilename, "Results.csv");
+      FILE *output_file;
+      if (access(outputFilename, F_OK) == 0)
+      {
+          // file exists
+          output_file = fopen(outputFilename, "a");
+      }
+      else
+      {
+          // file doesn't exist
+          output_file = fopen(outputFilename, "w");
+          fprintf(output_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n", "Filename","V","E","InitialMatchType", "MaxMatchType", "InitialMatchSize", "MaxMatchSize",  "InitialMatchTime", "MaxMatchTime");
+      }
+      if (argc>1){
+          fprintf(output_file, "%s,%d,%d,%s,%s,%d,%d,%f,%f\n", mma.input_file.c_str(),nr,nn,
+                                                                  InitialMatchingTypeStrings[mma.initial_matching_type].c_str(),
+                                                                  MaximumMatchingTypeStrings[mType].c_str(),
+                                                                  mc,
+                                                                  mmc,
+                                                                  imend - imbegin,
+                                                                  mmend - mbegin);
+      }
+      fclose(output_file);
+
     }
   }
   
