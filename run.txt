@@ -1,6 +1,4 @@
 #!/usr/bin/bash
-./mmaker MT=9 R=4 IF=graphs/dimacs/2DDynSims/hugetrace-00020/hugetrace-00020.mtx
-./mmaker MT=9 R=4 IF=graphs/dimacs/streets/europe_osm/europe_osm.mtx
 
 for i in $(seq 10 1 24)
 do
