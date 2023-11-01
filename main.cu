@@ -29,6 +29,7 @@
 #include "cudaBFS.h"
 #include "MatchingTypeEnums.h"
 #include <unistd.h>
+#include "GreedyMatcher.cuh"
 
 
 
@@ -472,6 +473,9 @@ int main(int argc, char *argv[]){
                        _root_array);
       double mmend = rtclock();
       
+      GreedyMatcher gm(nr,_cmatch,_rmatch);
+      int numAugmented = gm.maxMatch();
+
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
         cudaMemcpy(cmatch_c, _cmatch, sizeof(int) * nc, cudaMemcpyDeviceToHost);
         cudaMemcpy(rmatch_c,_rmatch, sizeof(int) * nr, cudaMemcpyDeviceToHost); 
@@ -484,7 +488,8 @@ int main(int argc, char *argv[]){
       cout << "Initial Match Count:" << mc << endl;
       cout << "Maximal Match Time:" << mmend - mbegin << endl;
       cout << "Maximal Match Count:" << mmc << endl;
-      
+      cout << "Fixed Match Count:" << numAugmented << endl;
+
       char inputFilename[500];
       char outputFilename[500];
       strcpy(outputFilename, "Results.csv");

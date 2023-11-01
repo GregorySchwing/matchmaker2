@@ -10,9 +10,10 @@ CUDAFLAGS = -O3 -Xptxas -O3 -Xcompiler -O3 -w
 
 
 all: mmaker
-mmaker: main.cpp cudaBFS.h cudaBFS.cu MMArguments.cpp cheap.c matching.c MMArguments.h matchmaker.h
-	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o main.o main.cpp
+mmaker: main.cu cudaBFS.h cudaBFS.cu matchgpu.cu MMArguments.cpp cheap.c matching.c MMArguments.h matchmaker.h
+	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o main.o main.cu
 	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o cudaBFS.o cudaBFS.cu
+	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o matchgpu.o matchgpu.cu
 	$(CC) $(LDFLAGS)   -c -o MMArguments.o MMArguments.cpp
 	$(CC) $(LDFLAGS)   -c -o cheap.o cheap.c
 	$(CC) $(LDFLAGS)   -c -o matching.o matching.c
