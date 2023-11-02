@@ -48,7 +48,7 @@ struct GreedyMatcher
     memset(c_Pinned, 1, sizeof(int));
     while (c_Pinned[0] && ++matchround < NR_MAX_MATCH_ROUNDS)
     {
-      printf("match round %d n %d\n", matchround,n);
+      //printf("match round %d n %d\n", matchround,n);
       gaSelect<<<dimGrid, THREADS_PER_BLOCK>>>(m_d_ptr, c_ptr, n, rand());
       cudaMemcpy(c_Pinned, c_ptr, sizeof(int), cudaMemcpyDeviceToHost);
       
@@ -56,9 +56,9 @@ struct GreedyMatcher
       
       grRespondEdgeList<<<dimGrid, THREADS_PER_BLOCK>>>(rmatch, cmatch, req_d_ptr, m_d_ptr,n);
       
-      gMatchEdgeList<<<dimGrid, THREADS_PER_BLOCK>>>(rmatch, cmatch, req_d_ptr, m_d_ptr,n);
-      gTentativelyKill<<<dimGrid, THREADS_PER_BLOCK>>>(req_d_ptr, m_d_ptr,n);
-      gRestoreLife<<<dimGrid, THREADS_PER_BLOCK>>>(rmatch, cmatch, req_d_ptr, m_d_ptr,n);
+      gMatchEdgeList<<<dimGrid, THREADS_PER_BLOCK>>>(rmatch, cmatch, m_d_ptr,req_d_ptr, n);
+      gTentativelyKill<<<dimGrid, THREADS_PER_BLOCK>>>(m_d_ptr,req_d_ptr,n);
+      gRestoreLife<<<dimGrid, THREADS_PER_BLOCK>>>(rmatch, cmatch, m_d_ptr,req_d_ptr, n);
     }
 
     using namespace thrust::placeholders;

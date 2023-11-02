@@ -235,7 +235,7 @@ __global__ void gMatchEdgeList(int * rmatch, int * cmatch,
 	const int i = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if (i >= nrVertices) return;
-	if (cmatch[i] >= 0){
+	if (cmatch[i] >= 0 && match[i] < 4){
 		int r = cmatch[i];
 		int c = rmatch[r];
 		const int r_u = requests[r];
@@ -248,12 +248,14 @@ __global__ void gMatchEdgeList(int * rmatch, int * cmatch,
 				//Match the vertices if the request was mutual.
 				//match[i] = 4 + min(i, r);
 				// I need a pointer to the match for traversal.
+				//printf("MATCHED ! cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
+
 				match[r] = 4 + c;
 				match[c] = 4 + r;
 			}
 		}
 	}
-	if (rmatch[i] >= 0){
+	if (rmatch[i] >= 0 && match[i] < 4){
 		int r = rmatch[i];
 		int c = cmatch[r];
 		//Look at all blue vertices and let them make requests.
@@ -267,6 +269,7 @@ __global__ void gMatchEdgeList(int * rmatch, int * cmatch,
 				//Match the vertices if the request was mutual.
 				//match[i] = 4 + min(i, r);
 				// I need a pointer to the match for traversal.
+				//printf("MATCHED ! cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
 				match[r] = 4 + c;
 				match[c] = 4 + r;
 			}
@@ -302,6 +305,7 @@ __global__ void gRestoreLife(int * rmatch, int * cmatch,
 		int c = rmatch[r];
 		if (requests[r]==0 && requests[c]==0)
 		{
+			//printf("RESTORING %d %d\n",r,c);
 			match[r] = 0;
 			match[c] = 0;
 		}
@@ -311,6 +315,7 @@ __global__ void gRestoreLife(int * rmatch, int * cmatch,
 		int c = cmatch[r];
 		if (requests[r]==0 && requests[c]==0)
 		{
+			//printf("RESTORING %d %d\n",r,c);
 			match[r] = 0;
 			match[c] = 0;
 		}
@@ -419,8 +424,10 @@ __global__ void grRequestEdgeList(int * rmatch, int * cmatch, int *requests, con
 		int c = rmatch[r];
 		if (match[r] == 0 && match[c] == 1)
 		{
+			//printf("cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
 			requests[r] = c;
 		} else if (match[c] == 0 && match[r] == 1){
+			//printf("cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
 			requests[c] = r;
 		}
 	}
@@ -429,8 +436,10 @@ __global__ void grRequestEdgeList(int * rmatch, int * cmatch, int *requests, con
 		int c = cmatch[r];
 		if (match[r] == 0 && match[c] == 1)
 		{
+			//printf("cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
 			requests[r] = c;
 		} else if (match[c] == 0 && match[r] == 1){
+			//printf("cmatch %d rmatch %d match[%d]=%d match[%d]=%d\n",r,c,r,match[r],c,match[c]);
 			requests[c] = r;
 		}
 	}
