@@ -474,8 +474,9 @@ int main(int argc, char *argv[]){
       double mmend = rtclock();
       
       GreedyMatcher gm(nr,_cmatch,_rmatch);
+      double mbegin2 = rtclock();
       int numAugmented = gm.maxMatch();
-
+      double mmend2 = rtclock();
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
         cudaMemcpy(cmatch_c, _cmatch, sizeof(int) * nc, cudaMemcpyDeviceToHost);
         cudaMemcpy(rmatch_c,_rmatch, sizeof(int) * nr, cudaMemcpyDeviceToHost); 
@@ -489,6 +490,7 @@ int main(int argc, char *argv[]){
       cout << "Maximal Match Time:" << mmend - mbegin << endl;
       cout << "Maximal Match Count:" << mmc << endl;
       cout << "Fixed Match Count:" << numAugmented << endl;
+      cout << "Fixed Match Time:" << mmend2 - mbegin2 << endl;
 
       char inputFilename[500];
       char outputFilename[500];
@@ -503,16 +505,18 @@ int main(int argc, char *argv[]){
       {
           // file doesn't exist
           output_file = fopen(outputFilename, "w");
-          fprintf(output_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n", "Filename","V","E","InitialMatchType", "MaxMatchType", "InitialMatchSize", "MaxMatchSize",  "InitialMatchTime", "MaxMatchTime");
+          fprintf(output_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", "Filename","V","E","InitialMatchType", "MaxMatchType", "InitialMatchSize", "MaxMatchSize", "FixedMatchSize",  "InitialMatchTime", "MaxMatchTime", "FixedMatchTime");
       }
       if (argc>1){
-          fprintf(output_file, "%s,%d,%d,%s,%s,%d,%d,%f,%f\n", mma.input_file.c_str(),nr,nn,
+          fprintf(output_file, "%s,%d,%d,%s,%s,%d,%d,%d,%f,%f,%f\n", mma.input_file.c_str(),nr,nn,
                                                                   InitialMatchingTypeStrings[mma.initial_matching_type].c_str(),
                                                                   MaximumMatchingTypeStrings[mType].c_str(),
                                                                   mc,
                                                                   mmc,
+                                                                  numAugmented,
                                                                   imend - imbegin,
-                                                                  mmend - mbegin);
+                                                                  mmend - mbegin,
+                                                                  mmend2 - mbegin2);
       }
       fclose(output_file);
 
