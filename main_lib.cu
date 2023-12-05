@@ -542,7 +542,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT*nr_ptr, 
   cudaFree(_cadj );
   cudaFree(_cmatch);
   cudaFree(_rmatch) ;
-  
+  return 0;
 }
 
 
