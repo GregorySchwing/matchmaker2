@@ -243,7 +243,7 @@ void maximal_matching(IT nr,
                       int blockDim, 
                       int threadDim,IT *_root_array);
 extern "C"
-int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr){
+int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr){
   MMArguments mma(argc, argv);
   
   IT nr, nc, nn;
@@ -286,7 +286,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
   
   //cout << "creating columns:" << endl;
   double cbeg = rtclock();
-  create_col_ptr(nr, nc, nn, rxadj, radj, &cxadj, &cadj);
+  create_col_ptr(nr, nc, nn, rxadj, radj, cxadj, cadj);
   double cend = rtclock();
   cout << "col creation:" << cend - cbeg << endl;
   
@@ -313,7 +313,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
                 cadj);
 #endif
   }
-  matching = new IT [nr];
+  *matching = new IT [nr];
 
   IT *cmatch = new IT[nc];
   IT *rmatch = new IT [nr];
@@ -358,7 +358,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
   }
   
   double imbegin = rtclock();
-  initial_matching(nr, nc, rxadj, radj, cxadj, cadj, cmatch, rmatch, mma.initial_matching_type);
+  initial_matching(nr, nc, rxadj, radj, *cxadj, *cadj, cmatch, rmatch, mma.initial_matching_type);
   double imend = rtclock();
   IT mc = match_count(nr,
                       nc,
@@ -406,8 +406,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
         //cudaMemcpy(_rxadj, rxadj, nr_size, cudaMemcpyHostToDevice);
         //cudaMemcpy(_radj, radj, nnz_size, cudaMemcpyHostToDevice);
         
-        cudaMemcpy(_cxadj, cxadj, nc_size, cudaMemcpyHostToDevice);
-        cudaMemcpy(_cadj, cadj, nnz_size, cudaMemcpyHostToDevice);
+        cudaMemcpy(_cxadj, *cxadj, nc_size, cudaMemcpyHostToDevice);
+        cudaMemcpy(_cadj, *cadj, nnz_size, cudaMemcpyHostToDevice);
         
         cudaMemcpy(_bfs, cmatch, nc_size, cudaMemcpyHostToDevice);
         cudaMemcpy(_preced, rmatch, nr_size, cudaMemcpyHostToDevice);
@@ -464,7 +464,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
       }
       double mbegin = rtclock();
       maximal_matching(nr, nc, rxadj, radj, 
-                       cxadj, cadj, 
+                       *cxadj, *cadj, 
                        cmatch_c, rmatch_c, 
                        mType, 
                        _rxadj, _radj, 
@@ -479,7 +479,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
       
       GreedyMatcher gm(nr,_cmatch,_rmatch);
       double mbegin2 = rtclock();
-      int numAugmented = gm.maxMatch(matching);
+      int numAugmented = gm.maxMatch(*matching);
       double mmend2 = rtclock();
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
         cudaMemcpy(cmatch_c, _cmatch, sizeof(int) * nc, cudaMemcpyDeviceToHost);
@@ -531,8 +531,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
   delete []rxadj;
   delete []radj;
   
-  delete []cxadj;
-  delete []cadj;
+  //delete []cxadj;
+  //delete []cadj;
   
   delete []cmatch;
   delete []rmatch;
