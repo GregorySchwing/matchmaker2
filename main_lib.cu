@@ -313,6 +313,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matchin
                 cadj);
 #endif
   }
+  matching = new IT [nr];
+
   IT *cmatch = new IT[nc];
   IT *rmatch = new IT [nr];
   
