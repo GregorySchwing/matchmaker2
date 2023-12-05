@@ -35,7 +35,7 @@ struct GreedyMatcher
     c_d.resize(1, 1);
     cudaMallocHost((void**)&c_Pinned, sizeof(int)); // host pinned
   }
-  int maxMatch()
+  int maxMatch(int * match)
   {
     //int *m_d_ptr = thrust::raw_pointer_cast(m_d.data());
     int *m_d_ptr = thrust::raw_pointer_cast(m_d.data());
@@ -69,6 +69,8 @@ struct GreedyMatcher
     //    printf("%d %d\n", i, m_h[i]);
     //for (int i = 0; i < m_h.size(); ++i)
     //  mate[i] = m_h[i];
+    cudaMemcpy(match, m_d_ptr, sizeof(int)*(m_d.size()), cudaMemcpyDeviceToHost);
+
     int numAugmented = thrust::count_if(m_d.begin(), m_d.end(), _1 > -1);
     return numAugmented / 2;
   }

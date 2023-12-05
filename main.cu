@@ -247,6 +247,7 @@ int main(int argc, char *argv[]){
   MMArguments mma(argc, argv);
   
   IT nr, nc, nn;
+  IT *matching;
   IT *rxadj;
   IT *radj;
   
@@ -316,7 +317,7 @@ int main(int argc, char *argv[]){
   
   IT *cmatch_c = new IT[nc];
   IT *rmatch_c = new IT [nr];
-  
+  matching = new IT [nr];
   
   cout  << "nr:" << nr << endl
         << "nc:" << nc << endl
@@ -475,7 +476,7 @@ int main(int argc, char *argv[]){
       
       GreedyMatcher gm(nr,_cmatch,_rmatch);
       double mbegin2 = rtclock();
-      int numAugmented = gm.maxMatch();
+      int numAugmented = gm.maxMatch(matching);
       double mmend2 = rtclock();
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
         cudaMemcpy(cmatch_c, _cmatch, sizeof(int) * nc, cudaMemcpyDeviceToHost);
@@ -532,7 +533,7 @@ int main(int argc, char *argv[]){
   
   delete []cmatch;
   delete []rmatch;
-  
+  delete []matching;
   
   //cudaFree(_rxadj );
   //cudaFree(_radj );

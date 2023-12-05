@@ -243,7 +243,7 @@ void maximal_matching(IT nr,
                       int blockDim, 
                       int threadDim,IT *_root_array);
 extern "C"
-int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr){
+int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT *matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr){
   MMArguments mma(argc, argv);
   
   IT nr, nc, nn;
@@ -477,7 +477,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT*nr_ptr, 
       
       GreedyMatcher gm(nr,_cmatch,_rmatch);
       double mbegin2 = rtclock();
-      int numAugmented = gm.maxMatch();
+      int numAugmented = gm.maxMatch(matching);
       double mmend2 = rtclock();
       if(mType == 8 || mType == 9 || mType == 10 ||  mType == 11) {
         cudaMemcpy(cmatch_c, _cmatch, sizeof(int) * nc, cudaMemcpyDeviceToHost);
