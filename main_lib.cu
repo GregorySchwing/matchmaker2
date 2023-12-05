@@ -289,7 +289,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   create_col_ptr(nr, nc, nn, rxadj, radj, cxadj, cadj);
   double cend = rtclock();
   cout << "col creation:" << cend - cbeg << endl;
-  
+  if (mma.match_type > 11)
+    return mma.match_type;
   /*
   if (mma.sort){
     double sbeg = rtclock();
@@ -544,7 +545,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   cudaFree(_cadj );
   cudaFree(_cmatch);
   cudaFree(_rmatch) ;
-  return 0;
+  return mma.match_type;
 }
 
 
