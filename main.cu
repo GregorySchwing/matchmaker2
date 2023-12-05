@@ -534,8 +534,8 @@ int main(int argc, char *argv[]){
   delete []rmatch;
   
   
-  cudaFree(_rxadj );
-  cudaFree(_radj );
+  //cudaFree(_rxadj );
+  //cudaFree(_radj );
   cudaFree(_cxadj );
   cudaFree(_cadj );
   cudaFree(_cmatch);

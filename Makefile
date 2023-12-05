@@ -9,7 +9,7 @@ NVCC=nvcc
 CUDAFLAGS = -O3 -Xptxas -O3 -Xcompiler -O3 -w 
 
 
-all: mmaker mmaker_lib.a
+all: mmaker
 mmaker: main.cu cudaBFS.h cudaBFS.cu matchgpu.cu MMArguments.cpp cheap.c matching.c MMArguments.h matchmaker.h
 	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o main.o main.cu
 	$(NVCC) $(LDFLAGS) $(CUDAFLAGS)  -c -o cudaBFS.o cudaBFS.cu

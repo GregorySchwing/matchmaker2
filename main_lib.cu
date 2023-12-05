@@ -536,8 +536,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT *cxadj, IT *cadj, IT*nr_ptr, 
   delete []rmatch;
   
   
-  cudaFree(_rxadj );
-  cudaFree(_radj );
+  //cudaFree(_rxadj );
+  //cudaFree(_radj );
   cudaFree(_cxadj );
   cudaFree(_cadj );
   cudaFree(_cmatch);
