@@ -243,7 +243,7 @@ void maximal_matching(IT nr,
                       int blockDim, 
                       int threadDim,IT *_root_array);
 extern "C"
-int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr){
+int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr, int just_read_file){
   MMArguments mma(argc, argv);
   
   IT nr, nc, nn;
@@ -289,8 +289,8 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   create_col_ptr(nr, nc, nn, rxadj, radj, cxadj, cadj);
   double cend = rtclock();
   cout << "col creation:" << cend - cbeg << endl;
-  if (mma.match_type > 11)
-    return mma.match_type;
+  if (just_read_file)
+    return 0;
   /*
   if (mma.sort){
     double sbeg = rtclock();
