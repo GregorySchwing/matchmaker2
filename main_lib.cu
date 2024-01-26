@@ -242,8 +242,15 @@ void maximal_matching(IT nr,
                       bool *_non_matched_found,
                       int blockDim, 
                       int threadDim,IT *_root_array);
+#include <sys/time.h>
+double getTimeOfDay() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
+}
+
 extern "C"
-int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr, int just_read_file){
+int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matching, IT*nr_ptr, IT*nc_ptr, IT*nn_ptr, int just_read_file, double *parse_graph_time, double *create_csr_time, double *init_time, int *init_match_count){
   MMArguments mma(argc, argv);
   
   IT nr, nc, nn;
@@ -272,13 +279,14 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   match_types[4] = 1;
   match_types[5] = 1;
   */
-  
+  double start_parse_graph = getTimeOfDay();
   readGraph(
             &mma, 
             nr_ptr, nc_ptr, nn_ptr,
             &rxadj, 
             &radj);
-            
+  double end_parse_graph = getTimeOfDay();
+  *parse_graph_time = end_parse_graph-start_parse_graph;
   nr = *nr_ptr;
   nc = *nc_ptr;
   nn = *nn_ptr;
@@ -289,6 +297,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   create_col_ptr(nr, nc, nn, rxadj, radj, cxadj, cadj);
   double cend = rtclock();
   cout << "col creation:" << cend - cbeg << endl;
+  *create_csr_time = cend - cbeg;
   if (just_read_file)
     return 0;
   /*
@@ -357,7 +366,6 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
       exit(1);
     }
   }
-  
   double imbegin = rtclock();
   initial_matching(nr, nc, rxadj, radj, *cxadj, *cadj, cmatch, rmatch, mma.initial_matching_type);
   double imend = rtclock();
@@ -495,8 +503,9 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
       cout << "Maximal Match Time:" << mmend - mbegin << endl;
       cout << "Maximal Match Count:" << mmc << endl;
       cout << "Fixed Match Count:" << numAugmented << endl;
+      *init_match_count=numAugmented;
       cout << "Fixed Match Time:" << mmend2 - mbegin2 << endl;
-
+      *init_time=mmend2 - mbegin2;
       char inputFilename[500];
       char outputFilename[500];
       strcpy(outputFilename, "Results.csv");
@@ -527,6 +536,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
 
     }
   }
+  
   
   
   delete []rxadj;
