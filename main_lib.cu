@@ -243,7 +243,7 @@ void maximal_matching(IT nr,
                       int blockDim, 
                       int threadDim,IT *_root_array);
 #include <sys/time.h>
-double getTimeOfDay() {
+double getTimeOfDay2() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
@@ -279,13 +279,13 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
   match_types[4] = 1;
   match_types[5] = 1;
   */
-  double start_parse_graph = getTimeOfDay();
+  double start_parse_graph = getTimeOfDay2();
   readGraph(
             &mma, 
             nr_ptr, nc_ptr, nn_ptr,
             &rxadj, 
             &radj);
-  double end_parse_graph = getTimeOfDay();
+  double end_parse_graph = getTimeOfDay2();
   *parse_graph_time = end_parse_graph-start_parse_graph;
   nr = *nr_ptr;
   nc = *nc_ptr;
