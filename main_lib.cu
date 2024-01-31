@@ -503,7 +503,7 @@ int main_lib(int argc, char *argv[], FILE * fp, IT **cxadj, IT **cadj, IT **matc
       cout << "Maximal Match Time:" << mmend - mbegin << endl;
       cout << "Maximal Match Count:" << mmc << endl;
       cout << "Fixed Match Count:" << numAugmented << endl;
-      *init_match_count=numAugmented;
+      //*init_match_count=numAugmented;
       cout << "Fixed Match Time:" << mmend2 - mbegin2 << endl;
       *init_time=mmend2 - mbegin2;
       char inputFilename[500];
